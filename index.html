@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="Make your ENAI Summer School Dubai 2026 name tag and keepsake.">
 <style>
-  html{color-scheme:light dark;}
+  html{color-scheme:light;}
   body{margin:0;font:14px/1.5 system-ui,sans-serif;background:#EDF2E6;}
   img{max-width:100%;}
   [hidden]{display:none!important;}
@@ -18,6 +19,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
+  color-scheme:light;      /* the ENAI palette stays put in dark mode too */
   --bg:#EDF2E6; --bg2:#E3EBDD;
   --surface:#FBFCF9; --surface2:#FFFFFF;
   --panel:#F1F4EC; --panel2:#E7EBE1;
@@ -31,40 +33,11 @@
   --shadow: 18,51,48;
   --danger:#B3554B;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0D1E1C; --bg2:#0A1715;
-    --surface:#123430; --surface2:#153C37;
-    --panel:#123430; --panel2:#0F2B27;
-    --ink:#EAF3EE; --ink-soft:#BFD4CC; --muted:#8FA69C;
-    --line:#204540; --line-strong:#2B5850;
-    --teal:#42D2C2; --teal-600:#37B9AB; --teal-700:#2C9C90; --teal-100:#1C4842;
-    --cover-teal:#5E9E97; --cover-mint:#2C534C; --cover-lavender:#3B3154;
-    --field-teal:rgba(255,255,255,.22); --field-mint:rgba(255,255,255,.16); --field-lav:rgba(255,255,255,.14);
-    --lav-700:#CBB9F1;
-    --sand:#2B2A20; --sand-ink:#E8DDBB;
-    --shadow: 0,0,0;
-    --danger:#E08276;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0D1E1C; --bg2:#0A1715;
-  --surface:#123430; --surface2:#153C37;
-  --panel:#123430; --panel2:#0F2B27;
-  --ink:#EAF3EE; --ink-soft:#BFD4CC; --muted:#8FA69C;
-  --line:#204540; --line-strong:#2B5850;
-  --teal:#42D2C2; --teal-600:#37B9AB; --teal-700:#2C9C90; --teal-100:#1C4842;
-  --cover-teal:#5E9E97; --cover-mint:#2C534C; --cover-lavender:#3B3154;
-  --field-teal:rgba(255,255,255,.22); --field-mint:rgba(255,255,255,.16); --field-lav:rgba(255,255,255,.14);
-  --lav-700:#CBB9F1;
-  --sand:#2B2A20; --sand-ink:#E8DDBB;
-  --shadow: 0,0,0;
-  --danger:#E08276;
-}
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
-  background:
+  background-color:var(--bg);          /* never borrow the host's dark ground */
+  background-image:
     radial-gradient(1200px 700px at 15% -10%, color-mix(in srgb, var(--teal) 10%, transparent), transparent 60%),
     linear-gradient(180deg, var(--bg), var(--bg2));
   color:var(--ink);
@@ -1031,7 +1004,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
                 <div class="b2">Ideas embedded in a declaration.</div>
               </div>
             </div>
-            <div class="build-stamp">Version 2026-09-04 00:02</div>
+            <div class="build-stamp">Version 2026-09-04 00:41</div>
           </div>
         </div>
       </div>
