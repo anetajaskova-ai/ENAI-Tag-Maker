@@ -93,7 +93,7 @@ img{display:block;}
   body{padding:32px 16px;}
   .app{
     max-width:600px;
-    min-height:min(900px, 94vh); height:min(900px, 94vh);
+    min-height:min(900px, 94vh);      /* grows with the content, never clips it */
     border-radius:28px;
     box-shadow:0 30px 60px -20px rgba(var(--shadow),.35);
     border:1px solid var(--line);
@@ -102,11 +102,12 @@ img{display:block;}
 /* ---------- desktop ---------- */
 @media (min-width:1080px){
   body{padding:40px 24px; align-items:center;}
-  .app{max-width:1020px; height:min(940px, 92vh);}
+  .app{max-width:1020px;}
 }
 
 .backfab{
   position:absolute; top:16px; left:16px; z-index:20;
+  /* sits inside the card, which now grows with its content */
   width:36px; height:36px; border-radius:50%;
   border:1px solid var(--line-strong); background:var(--surface2);
   display:flex; align-items:center; justify-content:center;
@@ -124,7 +125,7 @@ img{display:block;}
 .screen.active{opacity:1; transform:translateX(0); pointer-events:auto; position:relative;}
 @media (prefers-reduced-motion: reduce){ .screen{transition:none; transform:none;} }
 
-.screen-body{flex:1; overflow-y:auto; overflow-x:hidden; padding:22px 22px 28px;}
+.screen-body{flex:1; overflow-x:hidden; padding:22px 22px 40px;}
 .screen-body.has-fab{padding-top:60px;}
 @media (min-width:1080px){
   .screen-body{padding:34px 40px 34px;}
@@ -397,11 +398,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
 .section-title{font-family:"Fraunces",serif; font-weight:700; font-size:21px; color:var(--teal-700); margin-top:24px;}
 @media (min-width:1080px){ .col .section-title:first-child{margin-top:0;} }
 .section-sub{font-size:12.5px; color:var(--muted); font-style:italic; margin-top:3px;}
-.gallery-grid{
-  display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:12px;
-  max-height:min(44vh, 300px); overflow-y:auto; padding-right:4px;
-  scrollbar-gutter:stable;
-}
+.gallery-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:12px;}
 .gallery-tile{aspect-ratio:4/3; border-radius:12px; overflow:hidden; position:relative; border:2px solid transparent; background:var(--surface2);}
 .gallery-tile img{width:100%; height:100%; object-fit:cover;}
 .gallery-tile.selected{border-color:var(--teal);}
@@ -460,16 +457,15 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
 
 /* ---- photo frame: fixed 35.4 x 18.1 window, image moves inside it ---- */
 .photo-frame{
-  position:relative; width:100%; aspect-ratio:35.4 / 18.1;
+  position:relative; width:100%; aspect-ratio:1.6;   /* matches the exported half */
   overflow:hidden; border-radius:16px; background:var(--panel2);
   touch-action:none; cursor:grab;
 }
 .photo-frame.is-empty{cursor:pointer; border:1.5px dashed var(--line-strong); background:var(--surface2);}
 .photo-frame:active{cursor:grabbing;}
 .photo-frame > img{
-  position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; object-position:50% 50%;
-  transform-origin:center; will-change:transform;
+  position:absolute; left:50%; top:50%; max-width:none;
+  will-change:transform;
   user-select:none; -webkit-user-drag:none; pointer-events:none;
 }
 .photo-frame .frame-empty{
@@ -526,13 +522,10 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
 .keepsake-band{position:relative; width:100%; display:block; padding:0; overflow:hidden;}
 /* the photo window keeps the design's 35.4 x 18.1 proportions and is always filled */
 .band-photo{
-  position:relative; display:block; width:100%; aspect-ratio:35.4 / 18.1;
+  position:relative; display:block; width:100%; aspect-ratio:1.6;   /* two bands = 4:5 */
   overflow:hidden; background:var(--panel2);
 }
-.band-photo > img{
-  position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; object-position:50% 50%; transform-origin:center;
-}
+.band-photo > img{position:absolute; left:50%; top:50%; max-width:none;}
 .band-photo > .collage{position:absolute; inset:0;}
 .band-photo > svg{position:absolute; inset:0; width:100%; height:100%; display:block;}
 .band-label{
@@ -545,18 +538,10 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
 /* the tag floats over the seam; only the tag resizes, the photo bands never move */
 /* the tag floats over the seam between the two photo bands */
 .keepsake-tag{
-  position:absolute; left:50%; top:40.93%; transform:translate(-50%,-50%);
-  width:84%; margin:0; z-index:3;
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:84%; margin:0; z-index:3; cursor:grab; touch-action:none;
 }
-/* caption strip completes the 4:5 Instagram frame */
-.keepsake-caption{
-  /* completes the card to exactly 4:5 (two 35.4x18.1 bands + this strip) */
-  aspect-ratio:4.3975; flex:none; box-sizing:border-box;
-  padding:3.4% 4.6% 0; background:var(--surface2);
-  display:flex; flex-direction:column; justify-content:center; gap:1%;
-  overflow:hidden;
-}
-.keepsake-caption .kc-name{font-family:"Fraunces",serif; font-weight:700; font-size:5.1cqw; color:var(--ink); line-height:1.1;}
+.keepsake-tag:active{cursor:grabbing;}
 
 .tag-resize{
   position:absolute; right:-13px; bottom:-13px; z-index:8;
@@ -607,8 +592,8 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
 .caption-block{margin-top:18px; padding:14px; border-radius:16px; background:var(--panel); border:1px solid var(--line);}
 .caption-input{
   width:100%; border:1px solid var(--line-strong); border-radius:12px; background:var(--surface2);
-  padding:11px 12px; font-family:"Figtree",sans-serif; font-size:13.5px; line-height:1.5;
-  color:var(--ink); resize:vertical; min-height:96px; outline:none;
+  padding:14px 15px; font-family:"Figtree",sans-serif; font-size:14px; line-height:1.6;
+  color:var(--ink); resize:vertical; min-height:220px; max-height:60vh; overflow-y:auto; outline:none;
 }
 .caption-input:focus{border-color:var(--teal); }
 .caption-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:8px;}
@@ -618,9 +603,10 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
   padding:7px 13px; border-radius:999px;
 }
 .caption-copy:active{transform:scale(.96);}
-.consent-row.light{color:var(--ink-soft); margin-top:16px;}
-.consent-row.light input{accent-color:var(--teal-600);}
-.kc-brand{font-size:2.9cqw; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--teal-700);}
+.share-panel{background:var(--teal-600); border-radius:20px; padding:20px 18px; margin-top:22px; color:#fff;}
+.share-panel-title{font-family:"Fraunces",serif; font-size:26px; font-weight:700; color:#fff; margin:0;}
+.share-panel .social-row{margin-top:14px;}
+.share-panel .consent-row{margin-top:18px;}
 
 .export-rig{position:fixed; left:-9999px; top:0; width:380px;}
 
@@ -866,7 +852,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
             </div>
             <div class="zoom-row" id="sceneZoomRow">
               <label for="sceneZoom">Zoom</label>
-              <input type="range" id="sceneZoom" min="1" max="3" step="0.02" value="1">
+              <input type="range" id="sceneZoom" min="1" max="4" step="0.02" value="1">
               <button class="zoom-reset" type="button" data-reset="scene">Reset</button>
             </div>
 
@@ -931,7 +917,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
             </div>
             <div class="zoom-row" id="selfieZoomRow" hidden>
               <label for="selfieZoom">Zoom</label>
-              <input type="range" id="selfieZoom" min="1" max="3" step="0.02" value="1">
+              <input type="range" id="selfieZoom" min="1" max="4" step="0.02" value="1">
               <button class="zoom-reset" type="button" data-reset="selfie">Reset</button>
             </div>
             <div class="save-msg" id="selfieMsg">&nbsp;</div>
@@ -980,10 +966,6 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
                   <path d="M0 130 C90 108 160 140 230 120 C310 100 350 132 400 114 L400 150 L0 150 Z" fill="#8FBB4E"/>
                 </svg></span>
               </button>
-              <div class="keepsake-caption" id="keepsakeCaption">
-                <div class="kc-name" id="kcName">your_name</div>
-                <div class="kc-brand">ENAI Summer School &middot; Dubai 2026</div>
-              </div>
             </div>
           </div>
 
@@ -994,14 +976,15 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
 
             <div class="caption-block">
               <label class="field-label" for="shareCaption" style="margin-bottom:6px;">Your caption</label>
-              <textarea class="caption-input" id="shareCaption" rows="4" placeholder="This is your place to share your ideas, insights&hellip; anything you want"></textarea>
+              <textarea class="caption-input" id="shareCaption" rows="9" placeholder="This is your place to share your ideas, insights&hellip; anything you want"></textarea>
               <div class="caption-foot">
                 <span>This text is not printed on the image &mdash; it is copied for your post.</span>
                 <button class="caption-copy" id="copyCaptionBtn" type="button">Copy</button>
               </div>
             </div>
 
-            <div class="field-label" style="margin-top:20px;">Share to</div>
+            <div class="share-panel">
+            <h2 class="share-panel-title">Ready to share?</h2>
             <div class="social-row">
               <button class="social-btn" data-social="instagram" aria-label="Instagram">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
@@ -1014,29 +997,30 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
               </button>
             </div>
 
-            <label class="consent-row light">
+            <label class="consent-row">
               <input type="checkbox" id="consentCheck">
               <span>I'm happy for ENAI to share this tag and my words, and I agree to tag @ecaiu_official and @enaiofficial on Instagram and LinkedIn.</span>
             </label>
+            </div>
 
             <div class="save-msg" id="saveMsg1">&nbsp;</div>
             <div class="share-actions">
               <button class="btn btn-primary" id="downloadBtn" disabled>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
-                Download to my device
+                Save to device
               </button>
               <button class="btn btn-outline" id="shareSaveBtn" disabled>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-                Share my tag
+                Share
               </button>
-              <button class="btn btn-ghost" id="restartBtn">Make another version</button>
+              <button class="btn btn-ghost" id="restartBtn">Make another one</button>
             </div>
 
             <p class="share-note">
               <b>How sharing works:</b> Instagram and TikTok don't let a website post for you, so tap
-              <b>Download to my device</b>, then open Instagram and pick the saved image. The caption
+              <b>Save to device</b>, then open Instagram and pick the saved image. The caption
               (including <b>@ecaiu_official</b> and <b>@enaiofficial</b>) is copied for you &mdash; paste it and
-              the tags become real mentions. <b>Share my tag</b> opens your phone's share sheet with the
+              the tags become real mentions. <b>Share</b> opens your phone's share sheet with the
               image attached where your device supports it; LinkedIn and WhatsApp open with the text ready.
             </p>
 
@@ -1047,7 +1031,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
                 <div class="b2">Ideas embedded in a declaration.</div>
               </div>
             </div>
-            <div class="build-stamp">Version 2026-09-03 17:08</div>
+            <div class="build-stamp">Version 2026-09-04 00:02</div>
           </div>
         </div>
       </div>
@@ -1115,10 +1099,10 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
   var state = {
     name: "", cover: "mint", stickers: [], journal: "",
     photoSource: "gallery", sceneIndex: 0, customScenePhoto: null,
-    sceneCrop: { x:50, y:50, zoom:1 },
+    sceneCrop: { x:0, y:0, zoom:1 },
     selfieMode: "single", selfiePhoto: null, selfieCollage: [],
-    selfieCrop: { x:50, y:50, zoom:1 },
-    previewScale: 1, caption: "", step: 0
+    selfieCrop: { x:0, y:0, zoom:1 },
+    previewScale: 1, tagPos: { x:50, y:50 }, caption: "", captionEdited: false, step: 0
   };
   var selectedSticker = null;
 
@@ -1152,7 +1136,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
     var body = $(".screen.active .screen-body");
     if(body) body.scrollTop = 0;
     if(n === 5){
-      if(!$("#shareCaption").value) fillCaption();
+      fillCaption();
       deselectSticker(); renderPlacedStickers(); syncKeepsake(); syncConsent();
     }
     persist();
@@ -1162,11 +1146,18 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
   var CAPTION_TAGS = "@ecaiu_official @enaiofficial";
   var CAPTION_HASH = "#ENAI #ENAISummerSchool #academicintegrity";
 
-  function fillCaption(){
+  function composeCaption(){
+    var lead = (state.journal || "").replace(/\s+$/, "");
+    if(!lead) lead = CAPTION_LEAD;
+    return lead + "\n\n" + CAPTION_TAGS + "\n" + CAPTION_HASH;
+  }
+  /* the reflection follows the user into the caption; once they edit the
+     caption by hand we stop overwriting their words */
+  function fillCaption(force){
     var box = $("#shareCaption");
     if(!box) return;
-    var lead = (state.journal && state.journal.trim()) || CAPTION_LEAD;
-    box.value = lead + "\n\n" + CAPTION_TAGS + "\n" + CAPTION_HASH;
+    if(state.captionEdited && !force) return;
+    box.value = composeCaption();
     state.caption = box.value;
   }
 
@@ -1201,73 +1192,81 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
     return galleryPhoto(state.sceneIndex);
   }
 
-  /* ---------- Canva-style crop: fixed frame, image moves inside ---------- */
+  function galleryPhoto(i){ var s = SCENES[i] || SCENES[0]; return s.img; }
+  function currentScene(){
+    if(state.photoSource === "own") return state.customScenePhoto || galleryPhoto(state.sceneIndex);
+    return galleryPhoto(state.sceneIndex);
+  }
+
+  /* ---------- crop: fixed frame, the image is zoomed and dragged inside it ----------
+     x and y are fractions (-0.5 .. 0.5) of the overflow, so the frame is always
+     covered no matter how far the user drags or how deep they zoom.            */
   function crop(which){ return which === "scene" ? state.sceneCrop : state.selfieCrop; }
 
-  function applyCrop(img, c){
-    if(!img) return;
-    img.style.objectPosition = c.x + "% " + c.y + "%";
-    img.style.transform = "scale(" + c.zoom + ")";
+  function coverBox(frame, img, zoom){
+    var fw = frame.clientWidth, fh = frame.clientHeight;
+    var nw = img.naturalWidth || fw, nh = img.naturalHeight || fh;
+    var r = nw / nh, fr = fw / fh, w, h;
+    if(r > fr){ h = fh * zoom; w = h * r; }     /* image wider than the frame */
+    else { w = fw * zoom; h = w / r; }
+    return { w:w, h:h, slackX: Math.max(0, w - fw), slackY: Math.max(0, h - fh) };
+  }
+
+  function applyCropTo(frame, img, c){
+    if(!frame || !img) return;
+    var box = coverBox(frame, img, c.zoom);
+    var dx = (c.x || 0) * box.slackX;
+    var dy = (c.y || 0) * box.slackY;
+    img.style.width = box.w + "px";
+    img.style.height = box.h + "px";
+    img.style.left = "50%";
+    img.style.top = "50%";
+    img.style.transform = "translate(-50%,-50%) translate(" + dx.toFixed(2) + "px," + dy.toFixed(2) + "px)";
   }
 
   function syncCrops(){
-    applyCrop($("#sceneHeroImg"), state.sceneCrop);
-    applyCrop($("#sceneImg"), state.sceneCrop);
-    var single = $("#selfieDrop img");
-    applyCrop(single, state.selfieCrop);
-    if(state.selfieMode === "single") applyCrop($("#selfieImg"), state.selfieCrop);
+    applyCropTo($("#sceneFrame"), $("#sceneHeroImg"), state.sceneCrop);
+    applyCropTo($("#bandSceneFrame"), $("#sceneImg"), state.sceneCrop);
+    applyCropTo($("#selfieDrop"), $("#selfieDrop img"), state.selfieCrop);
+    if(state.selfieMode === "single"){
+      applyCropTo($("#selfieImg") && $("#selfieImg").parentElement, $("#selfieImg"), state.selfieCrop);
+    }
     var sz = $("#sceneZoom"); if(sz) sz.value = state.sceneCrop.zoom;
     var fz = $("#selfieZoom"); if(fz) fz.value = state.selfieCrop.zoom;
   }
 
-  /* how much of the image hangs outside the frame, per axis, in px */
-  function slack(frame, img, zoom){
-    var fw = frame.clientWidth, fh = frame.clientHeight;
-    var nw = img.naturalWidth || fw, nh = img.naturalHeight || fh;
-    var r = nw / nh, fr = fw / fh, w, h;
-    if(r > fr){ h = fh * zoom; w = h * r; }
-    else { w = fw * zoom; h = w / r; }
-    return { x: Math.max(0, w - fw), y: Math.max(0, h - fh) };
-  }
-
   function initPhotoFrame(frame, which){
-    var dragging = false, moved = false, last = null;
+    var dragging = false, last = null;
 
     frame.addEventListener("pointerdown", function(ev){
       var img = frame.querySelector("img");
       if(!img || frame.classList.contains("is-empty")) return;
-      dragging = true; moved = false;
+      dragging = true;
       last = { x: ev.clientX, y: ev.clientY };
       frame.setPointerCapture(ev.pointerId);
+      ev.preventDefault();
     });
     frame.addEventListener("pointermove", function(ev){
       if(!dragging) return;
       var img = frame.querySelector("img");
       if(!img) return;
-      var c = crop(which);
-      var s = slack(frame, img, c.zoom);
+      var c = crop(which), box = coverBox(frame, img, c.zoom);
       var dx = ev.clientX - last.x, dy = ev.clientY - last.y;
-      if(Math.abs(dx) + Math.abs(dy) > 2) moved = true;
       last = { x: ev.clientX, y: ev.clientY };
-      if(s.x > 0) c.x = Math.max(0, Math.min(100, c.x - (dx / s.x) * 100));
-      if(s.y > 0) c.y = Math.max(0, Math.min(100, c.y - (dy / s.y) * 100));
+      if(box.slackX > 0) c.x = Math.max(-0.5, Math.min(0.5, (c.x || 0) + dx / box.slackX));
+      if(box.slackY > 0) c.y = Math.max(-0.5, Math.min(0.5, (c.y || 0) + dy / box.slackY));
       syncCrops();
     });
-    function stop(){
-      if(!dragging) return;
-      dragging = false;
-      if(moved) persist();
-    }
+    function stop(){ if(!dragging) return; dragging = false; persist(); }
     frame.addEventListener("pointerup", stop);
     frame.addEventListener("pointercancel", stop);
     frame.addEventListener("dragstart", function(ev){ ev.preventDefault(); });
-    /* wheel = zoom, keeping the aspect ratio */
     frame.addEventListener("wheel", function(ev){
       var img = frame.querySelector("img");
       if(!img || frame.classList.contains("is-empty")) return;
       ev.preventDefault();
       var c = crop(which);
-      c.zoom = Math.max(1, Math.min(3, c.zoom * (ev.deltaY > 0 ? 0.94 : 1.06)));
+      c.zoom = Math.max(1, Math.min(4, c.zoom * (ev.deltaY > 0 ? 0.94 : 1.06)));
       syncCrops(); persist();
     }, { passive:false });
   }
@@ -1303,19 +1302,43 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
     }
     syncCrops();
     applyPreviewScale();
-    syncKeepsakeCaption();
   }
 
-  function syncKeepsakeCaption(){
-    var name = $("#kcName");
-    if(name) name.textContent = state.name.trim() || "your_name";
-  }
+  function syncKeepsakeCaption(){ /* the exported image carries no name strip */ }
 
   /* only the tag scales; the photo bands stay exactly as cropped */
   function applyPreviewScale(){
     var box = $("#keepsakeTagBox");
     if(!box) return;
+    if(!state.tagPos) state.tagPos = { x:50, y:50 };
     box.style.width = (84 * state.previewScale).toFixed(1) + "%";
+    box.style.left = state.tagPos.x + "%";
+    box.style.top  = state.tagPos.y + "%";
+  }
+
+  /* drag the tag anywhere over the photos; it can never leave the canvas */
+  function initTagDrag(){
+    var box = $("#keepsakeTagBox"), card = $("#memoryCard");
+    if(!box || !card) return;
+    var dragging = false, last = null;
+    box.addEventListener("pointerdown", function(ev){
+      if(ev.target.closest(".tag-resize")) return;     /* that handle resizes */
+      dragging = true;
+      last = { x: ev.clientX, y: ev.clientY };
+      box.setPointerCapture(ev.pointerId);
+      ev.preventDefault();
+    });
+    box.addEventListener("pointermove", function(ev){
+      if(!dragging) return;
+      var r = card.getBoundingClientRect();
+      last = { x: ev.clientX, y: ev.clientY, dx: (ev.clientX - last.x) / r.width * 100, dy: (ev.clientY - last.y) / r.height * 100 };
+      state.tagPos.x = Math.max(12, Math.min(88, state.tagPos.x + last.dx));
+      state.tagPos.y = Math.max(12, Math.min(88, state.tagPos.y + last.dy));
+      applyPreviewScale();
+    });
+    function stopDrag(){ if(!dragging) return; dragging = false; persist(); }
+    box.addEventListener("pointerup", stopDrag);
+    box.addEventListener("pointercancel", stopDrag);
   }
 
   /* drag the corner handle, exactly like resizing a sticker */
@@ -1590,7 +1613,11 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
   function initJournal(){
     var ta = $("#journalText");
     ta.value = state.journal;
-    ta.addEventListener("input", function(){ state.journal = ta.value; persist(); });
+    ta.addEventListener("input", function(){
+      state.journal = ta.value;
+      if(!state.captionEdited) fillCaption();
+      persist();
+    });
     $all(".idea-chip").forEach(function(chip){
       chip.addEventListener("click", function(){
         var sep = ta.value && !ta.value.endsWith("\n") ? "\n" : "";
@@ -1624,7 +1651,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
       tile.addEventListener("click", function(){
         state.photoSource = "gallery";
         state.sceneIndex = i;
-        state.sceneCrop = { x:50, y:50, zoom:1 };
+        state.sceneCrop = { x:0, y:0, zoom:1 };
         renderGallery(); syncPhotoChoices(); syncKeepsake(); persist();
       });
       grid.appendChild(tile);
@@ -1716,7 +1743,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
       readAsDataUrl(f, function(url){
         state.photoSource = "own";
         state.customScenePhoto = url;
-        state.sceneCrop = { x:50, y:50, zoom:1 };
+        state.sceneCrop = { x:0, y:0, zoom:1 };
         renderGallery(); syncPhotoChoices(); syncKeepsake(); persist();
         toast("Your Dubai photo is set \u2014 drag it inside the frame to choose the crop.");
       });
@@ -1743,7 +1770,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
       readAsDataUrl(f, function(url){
         state.selfieMode = "single";
         state.selfiePhoto = url;
-        state.selfieCrop = { x:50, y:50, zoom:1 };
+        state.selfieCrop = { x:0, y:0, zoom:1 };
         setMsg($("#selfieMsg"), "Photo added \u2014 drag it inside the frame to choose the crop.", "ok");
         syncPhotoChoices(); syncKeepsake(); persist();
       });
@@ -1800,7 +1827,7 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
     });
     $all(".zoom-reset").forEach(function(btn){
       btn.addEventListener("click", function(){
-        var c = { x:50, y:50, zoom:1 };
+        var c = { x:0, y:0, zoom:1 };
         if(btn.dataset.reset === "scene") state.sceneCrop = c; else state.selfieCrop = c;
         syncCrops(); persist();
       });
@@ -1823,7 +1850,9 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
 
   function initPreviewSize(){
     if(state.previewScale > 1.14 || state.previewScale < 0.5) state.previewScale = 1;
+    if(!state.tagPos) state.tagPos = { x:50, y:50 };
     initTagResize();
+    initTagDrag();
     applyPreviewScale();
   }
 
@@ -2021,6 +2050,12 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
     syncCover();
     syncPhotoChoices();
     syncKeepsake();
+    /* image sizes depend on layout, so refresh once everything has settled */
+    window.addEventListener("resize", syncCrops);
+    $all("#sceneHeroImg, #sceneImg, #selfieImg").forEach(function(img){
+      img.addEventListener("load", syncCrops);
+    });
+    setTimeout(syncCrops, 300);
     if(state.caption) $("#shareCaption").value = state.caption;
     syncConsent();
 
@@ -2030,7 +2065,9 @@ body.is-exporting .keepsake{border-radius:0 !important; box-shadow:none !importa
     });
 
     $("#shareCaption").addEventListener("input", function(e){
-      state.caption = e.target.value; persist();
+      state.caption = e.target.value;
+      state.captionEdited = true;    /* the user owns the text from now on */
+      persist();
     });
     $("#consentCheck").addEventListener("change", function(){ syncConsent(); });
 
