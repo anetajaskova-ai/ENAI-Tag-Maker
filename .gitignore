@@ -1,0 +1,42 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# Claude Code local settings (dev server config, local overrides)
+.claude/
+CLAUDE.local.md
+
+# Design sources and original photography (kept locally, not published)
+# The finished artwork is already embedded in index.html.
+assets/
+*.psd
+*.ai
+*.sketch
+*.fig
+
+# Node / tooling (not used today, kept for safety)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+secrets.*
+
+# Build and temp output
+dist/
+build/
+tmp/
+*.log
