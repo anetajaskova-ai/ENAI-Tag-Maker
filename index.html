@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="description" content="Make your ENAI Summer School Dubai 2026 name tag and keepsake.">
 <style>
   html{color-scheme:light dark;}
@@ -249,6 +252,18 @@ img{display:block;}
   border-radius:2px; box-shadow:0 6px 16px -6px rgba(0,0,0,.45);
 }
 .placed-sticker .tag-photo img{width:100%; aspect-ratio:1; object-fit:cover; display:block;}
+.placed-sticker .tag-photo.is-empty{cursor:pointer;}
+.placed-sticker .photo-drop{
+  display:flex; align-items:center; justify-content:center;
+  width:100%; aspect-ratio:1;
+  background:#C5E3E0; box-shadow:inset 0 0 0 1px rgba(18,51,48,.12);
+}
+.placed-sticker .photo-drop-btn{
+  background:#128B8D; color:#fff; font-weight:800; letter-spacing:.01em;
+  font-size:3.4cqw; padding:1.6cqw 3.4cqw; border-radius:999px;
+  box-shadow:0 4px 10px -4px rgba(0,0,0,.4); white-space:nowrap;
+}
+.placed-sticker.photo-empty .sticker-handle.del{display:none !important;}
 .placed-sticker:active{cursor:grabbing;}
 .placed-sticker.selected{outline:1.5px dashed var(--teal-700); outline-offset:3px;}
 .sticker-handle{
@@ -582,6 +597,7 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
 .footer-logo{display:flex; align-items:center; gap:9px; justify-content:center; margin-top:20px;}
 .footer-logo img{width:28px;}
 .footer-logo .brand-text .b1{color:var(--ink-soft);}
+.build-stamp{text-align:center; margin-top:8px; font-size:10px; color:var(--muted); letter-spacing:.04em;}
 
 .export-rig{position:fixed; left:-9999px; top:0; width:380px;}
 
@@ -740,15 +756,6 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
           <div class="col">
             <div class="panel-light">
               <div class="personal-top">
-                <div class="polaroid-col">
-                  <div class="polaroid-caption">Your photo</div>
-                  <div class="polaroid">
-                    <div class="polaroid-photo" id="polaroidPhoto">
-                      <div class="polaroid-upload-btn">Upload</div>
-                    </div>
-                  </div>
-                  <div class="polaroid-note">A portrait of you &mdash; it lands on the tag, where you can move and resize it.</div>
-                </div>
                 <div class="name-echo-col">
                   <div class="your-name-echo placeholder" id="nameEcho">your_name</div>
                 </div>
@@ -1050,6 +1057,7 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
                 <div class="b2">Ideas embedded in a declaration.</div>
               </div>
             </div>
+            <div class="build-stamp">Version 2026-09-03 04:36</div>
           </div>
         </div>
       </div>
@@ -1124,7 +1132,7 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     sceneCrop: { x:50, y:50, zoom:1 },
     selfieMode: "single", selfiePhoto: null, selfieCollage: [],
     selfieCrop: { x:50, y:50, zoom:1 },
-    polaroidPhoto: null, previewScale: 1, step: 0
+    previewScale: 1, step: 0
   };
   var selectedSticker = null;
 
@@ -1431,15 +1439,25 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     toast("Sticker added \u2014 drag to move, use the handles to resize or rotate.");
   }
   /* the portrait lives on the tag as a photo element, alongside the stickers */
-  function setTagPhoto(url){
-    var existing = state.stickers.filter(function(s){ return s.kind === "photo"; })[0];
-    if(existing){ existing.src = url; selectedSticker = existing.uid; return; }
+  function photoSlot(){
+    var found = state.stickers.filter(function(s){ return s.kind === "photo"; })[0];
+    if(found) return found;
     var item = {
-      kind:"photo", id:"__photo__", uid:"photo-" + Date.now(),
-      src:url, x:14, y:6, size:34, rot:-6
+      kind:"photo", id:"__photo__", uid:"photo-slot",
+      src:null, x:14, y:6, size:34, rot:-6
     };
     state.stickers.push(item);
-    selectedSticker = item.uid;   /* show the handles straight away */
+    return item;
+  }
+  function setTagPhoto(url){
+    var slot = photoSlot();
+    slot.src = url;
+    selectedSticker = slot.uid;   /* show the handles straight away */
+  }
+  function clearTagPhoto(){
+    var slot = photoSlot();
+    slot.src = null;
+    if(selectedSticker === slot.uid) selectedSticker = null;
   }
 
   function removeSticker(uid){
@@ -1461,9 +1479,14 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     if(!editable) el.classList.add("sticker-static");
     el.dataset.uid = s.uid;
     stickerStyle(el, s);
-    el.innerHTML = (s.kind === "photo")
-      ? '<span class="tag-photo"><img src="'+s.src+'" alt="" draggable="false"></span>'
-      : '<img src="'+stickerImg(s.id)+'" alt="" draggable="false">';
+    if(s.kind === "photo"){
+      el.innerHTML = s.src
+        ? '<span class="tag-photo"><img src="'+s.src+'" alt="" draggable="false"></span>'
+        : '<span class="tag-photo is-empty"><span class="photo-drop"><span class="photo-drop-btn">Upload</span></span></span>';
+      if(!s.src) el.classList.add("photo-empty");
+    } else {
+      el.innerHTML = '<img src="'+stickerImg(s.id)+'" alt="" draggable="false">';
+    }
     if(editable){
       el.insertAdjacentHTML("beforeend",
         '<span class="sticker-handle del" data-act="del" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>' +
@@ -1492,6 +1515,7 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     if(mtag && mstage){
       $all(".placed-sticker", mstage).forEach(function(el){ el.remove(); });
       state.stickers.forEach(function(s){
+        if(s.kind === "photo" && !s.src) return;    /* nothing uploaded yet */
         var el = buildSticker(s, false);
         if(s.kind === "photo"){ el.classList.add("on-stage"); mstage.appendChild(el); }
         else mtag.appendChild(el);
@@ -1511,7 +1535,12 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     el.addEventListener("pointerdown", function(ev){
       var handle = ev.target.closest(".sticker-handle");
       var act = handle ? handle.dataset.act : "move";
-      if(act === "del"){ ev.stopPropagation(); removeSticker(model.uid); return; }
+      if(act === "del"){
+        ev.stopPropagation();
+        if(model.kind === "photo"){ clearTagPhoto(); renderPlacedStickers(); persist(); }
+        else removeSticker(model.uid);
+        return;
+      }
       ev.stopPropagation();
       ev.preventDefault();
       selectSticker(model.uid);
@@ -1612,18 +1641,6 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     });
   }
 
-  function renderPolaroid(){
-    var p = $("#polaroidPhoto");
-    var existing = p.querySelector("img");
-    if(existing) existing.remove();
-    if(state.polaroidPhoto){
-      var img = document.createElement("img");
-      img.src = state.polaroidPhoto;
-      p.insertBefore(img, p.firstChild);
-      p.classList.add("has-photo");
-    } else p.classList.remove("has-photo");
-  }
-
   /* the "Upload your photo" frame: single photo (croppable), 4-photo collage, or empty prompt */
   function renderSelfieSlot(){
     var slot = $("#selfieDrop");
@@ -1686,17 +1703,21 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     }
     function isImage(f){ return f && /^image\//.test(f.type); }
 
-    /* polaroid on "Make a tag yours" */
+    /* the polaroid beside the tag is both the upload control and the photo */
     var polaroidInput = makeInput(function(files){
-      var f = files[0]; if(!isImage(f)) return;
+      var f = files[0];
+      if(!isImage(f)){ toast("Please choose an image file (JPG or PNG)."); return; }
       readAsDataUrl(f, function(url){
-        state.polaroidPhoto = url;
         setTagPhoto(url);
-        renderPolaroid(); renderPlacedStickers(); persist();
-        toast("Your photo is on the tag \u2014 drag it, resize it or rotate it like a sticker.");
+        renderPlacedStickers(); persist();
+        toast("Drag your photo where you want it, or resize it with the corner handle.");
       });
     });
-    $("#polaroidPhoto").addEventListener("click", function(){ polaroidInput.click(); });
+    /* tapping the empty polaroid opens the picker */
+    $("#tagStage2").addEventListener("click", function(ev){
+      var host = ev.target.closest(".placed-sticker");
+      if(host && host.classList.contains("photo-empty")) polaroidInput.click();
+    });
 
     /* Dubai photo: own upload */
     var sceneInput = makeInput(function(files){
@@ -1799,7 +1820,6 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     $("#bandScene").addEventListener("click", function(){ goToStep(4); });
     $("#bandSelfie").addEventListener("click", function(){ goToStep(4); });
 
-    renderPolaroid();
     renderSelfieSlot();
   }
 
@@ -1993,6 +2013,7 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
     });
 
     renderStickerTray();
+    photoSlot();                 /* the polaroid is always present, empty or filled */
     renderPlacedStickers();
     initJournal();
     renderGallery();
