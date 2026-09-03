@@ -1760,7 +1760,17 @@ body.is-exporting .tag-resize, body.is-exporting .frame-hint{display:none !impor
       document.body.classList.add("is-exporting");
       var done = function(fn){ return function(v){ document.body.classList.remove("is-exporting"); fn(v); }; };
       resolve = done(resolve); reject = done(reject);
-      html2canvas(el, { backgroundColor:"#ffffff", scale:2, useCORS:true }).then(function(canvas){
+      /* pin the render to the element's own box so a small or scrolled window
+         can never clip the result */
+      var opts = {
+        backgroundColor: "#ffffff", scale: 2, useCORS: true,
+        width: el.offsetWidth, height: el.offsetHeight,
+        windowWidth: Math.max(document.documentElement.clientWidth, el.offsetWidth),
+        windowHeight: Math.max(document.documentElement.clientHeight, el.offsetHeight),
+        scrollX: 0, scrollY: -window.scrollY
+      };
+      html2canvas(el, opts).then(function(canvas){
+        if(!canvas.width || !canvas.height){ reject(new Error("empty-canvas")); return; }
         canvas.toBlob(function(blob){ blob ? resolve(blob) : reject(new Error("no-blob")); }, "image/png");
       }).catch(reject);
     });
